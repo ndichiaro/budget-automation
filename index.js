@@ -1,11 +1,9 @@
 const puppeteer = require('puppeteer');
-const boa = require('./src/boa');
 const everydollar = require('./src/everydollar');
 const config = require('./src/configuration');
 
 (async () => {
 
-  // TODO: prompt user for login info. 
   // TODO: retry incorrect BOA code
   const configuration = config.parse(process.argv);
 

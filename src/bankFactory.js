@@ -1,4 +1,4 @@
-let boa = require('./boa');
+let boa = require('./banks/boa');
 
 function getInstance(bank) {
   switch (bank.toLocaleLowerCase()) {

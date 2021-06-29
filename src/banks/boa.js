@@ -1,8 +1,8 @@
 const puppeteer = require('puppeteer');
-const common = require('./common');
-const Transaction = require('./transaction');
-const prompt = require('./prompt');
-const Credentials = require('./credentials');
+const common = require('../common');
+const Transaction = require('../transaction');
+const prompt = require('../prompt');
+const Credentials = require('../credentials');
 
 let page = undefined;
 
@@ -90,7 +90,7 @@ const boa = {
      * @param {Credentials} credentials
      */
     login: async credentials => {
-      console.log("\nLogging into EveryDollar...\n");
+      console.log("\nLogging into Bank of America...\n");
 
       const onlineId = await page.$("#onlineId1");
       const passcode = await page.$("#passcode1");
