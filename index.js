@@ -1,12 +1,12 @@
 const puppeteer = require('puppeteer');
 const everydollar = require('./src/everydollar');
 const config = require('./src/configuration');
+const prompt = require('./src/prompt');
 
 (async () => {
 
   // TODO: retry incorrect BOA code
   // TODO: fix prompt what backspace is clicked
-  // TODO: press any key to exit
   const configuration = config.parse(process.argv);
 
   const { bankInstance } = configuration;
@@ -53,5 +53,8 @@ const config = require('./src/configuration');
   } else {
     console.log(`${added} transactions were added\n`);
   }
-  //await browser.close();
+
+  await prompt.ask("Press any key to exit...");
+
+  await browser.close();
 })();
