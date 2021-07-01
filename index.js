@@ -6,7 +6,6 @@ const prompt = require('./src/prompt');
 (async () => {
 
   // TODO: retry incorrect BOA code
-  // TODO: fix prompt what backspace is clicked
   const configuration = config.parse(process.argv);
 
   const { bankInstance } = configuration;
