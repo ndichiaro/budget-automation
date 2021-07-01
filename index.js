@@ -36,7 +36,9 @@ const config = require('./src/configuration');
   await bankInstance.checkSuccessfulLogin();
   await bankInstance.navigateToAccount();
 
-  const transactions = await bankInstance.pullTransacations(recentTransactions);
+  const transactions = await bankInstance.pullTransacations(recentTransactions, { 
+    date: configuration.date
+  });
 
   console.log(`${transactions.length} BOA Transactions Pulled`);
 

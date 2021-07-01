@@ -112,9 +112,10 @@ const boa = {
     /**
      * Pulls all the more recent, cleared transactions than the latest transaction
      * @param {Array<Transaction>} syncedTransactions A list of transactions that have already been synced
+     * @param {{date: Date}} options 
      * @returns {Promise<Array<Transaction>>} An array of the most recent transactions
      */
-    pullTransacations: async (syncedTransactions) => {
+    pullTransacations: async (syncedTransactions, options) => {
       const clearedTransactions = await page.$$("tr.record.cleared")
       let transactionList = [];
       let reachedDateLimit = false;
@@ -131,12 +132,19 @@ const boa = {
 
         const currentTransaction = new Transaction(date, description, parsedAmount.value, parsedAmount.type);
 
-        const weekBeforeMonthDate = boa.private.getWeekBeforeTheStartOfTheMonth();
+        let limitDate = boa.private.getWeekBeforeTheStartOfTheMonth();
+
+        if(options) {
+          if(options.date) {
+            limitDate = options.date;
+          }
+        }
+        
         const transactionDate = new Date(currentTransaction.date);
 
         // if the current transaction date is less than the week before the start of the month
         // then we can stop grabbing transactions
-        if(transactionDate < weekBeforeMonthDate){
+        if(transactionDate < limitDate){
           reachedDateLimit = true;
           break;
         }

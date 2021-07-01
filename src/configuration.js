@@ -6,6 +6,8 @@ function Configuration() {
   this.isHeadless = true;
 
   this.bankInstance = {};
+
+  this.date = undefined;
 }
 
 function parseArgValues(arg, config) {
@@ -16,6 +18,9 @@ function parseArgValues(arg, config) {
     case "-b":
       config.bankInstance = bankFactory.getInstance(argArr[1]);
       break;
+    case "--date":
+    case "-d":
+      config.date = new Date(argArr[1]);
     default:
       break;
   }
@@ -38,8 +43,8 @@ const configuration = {
       }
 
       switch (val.toLocaleLowerCase()) {
-        case "--degug":
-        case "-d":
+        case "--headless":
+        case "-h":
           config.isHeadless = false;
           break;
         default:
