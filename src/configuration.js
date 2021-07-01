@@ -1,13 +1,10 @@
 const bankFactory = require('./bankFactory');
 
 function Configuration() {
-  const $this = this;
-
-  this.isHeadless = true;
-
   this.bankInstance = {};
-
   this.date = undefined;
+  this.isHeadless = true;
+  this.isInteractive = false;  
 }
 
 function parseArgValues(arg, config) {
@@ -21,6 +18,10 @@ function parseArgValues(arg, config) {
     case "--date":
     case "-d":
       config.date = new Date(argArr[1]);
+      break;
+    case "-i":
+      config.isInteractive = true;
+      break;
     default:
       break;
   }

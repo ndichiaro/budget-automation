@@ -39,6 +39,34 @@ const everydollar = {
       return transactions;
     },
     /**
+     * Prompts the user if a transaction should be added
+     * @param {Transaction} transaction 
+     * @return {Promise<Boolean>}
+     */
+    shouldAddTransaction: async transaction => {
+      const message = "Would you like to add\n" +
+                      `\tType: ${transaction.type}\n` +
+                      `\tDate: ${transaction.date}\n` +
+                      `\tDesc: ${transaction.description}\n` +
+                      `\tAmnt: ${transaction.amount}\n` +
+                      "to EveryDollar? [y/n] ";
+
+      const response = await prompt.ask(message);
+
+      switch (response.toLocaleLowerCase()) {
+        case "y":
+        case "yes":
+          console.log("\n");
+          return true;
+        case "n":
+        case "no":
+          console.log("\n");
+          return false;
+        default:
+          throw new Error(`${response} is not a valid response`);
+      }
+    },
+    /**
      * @summary Verifies the element was actually added to the new list
      * @param {Transaction} transaction the transaction added to EveryDollar
      * @returns {Promise<Boolen>}
@@ -60,11 +88,32 @@ const everydollar = {
     /**
      * @summary Add a set of transactions to every dollar
      * @param {Array<Transaction>} transactions 
+     * @param {{isInteractive:Boolean}} options
+     * @returns {Promise<Number>}
      */
-    addTransactions: async (transactions) => {
+    addTransactions: async (transactions, options) => {
+      let transactionsAdded = 0;
+      let transactionsRemaining = transactions.length;
+
       for (let i = 0; i < transactions.length; i++) {
         const transaction = transactions[i];
         
+        let shouldAdd = true;
+        
+        if(options && options.isInteractive) {
+          if(transactionsRemaining < transactions.length) {
+            console.log(`${transactionsRemaining} transactions remaining...\n`)
+          }
+
+          transactionsRemaining--;
+          
+          shouldAdd = await everydollar.private.shouldAddTransaction(transaction);
+        }
+
+        if(!shouldAdd) {
+          continue;
+        }
+
         // 1. Click the 'Add New' button
         await common.pages.clickPageElement(page, "#TransactionDrawer_addNew");
 
@@ -96,8 +145,6 @@ const everydollar = {
         await common.pages.clickPageElement(page, "#TransactionModal_submit");
 
         // 7. wait for the module to disappear
-        //await page.waitForFunction(async page => await page.$("div.modal-header") == null, {}, page);
-        
         while(true) {
           let modalHeader = await page.$("div.modal-header");
 
@@ -114,7 +161,14 @@ const everydollar = {
         if(!wasAdded) {
           throw new Error("An error occurred while added a transaction")
         }
+
+        if(options && options.isInteractive) {
+          transactionsAdded++;
+          console.log("Transaction Added");
+        }
       }
+
+      return transactionsAdded;
     },
     /**
      * @summary Get a list of the latest transactions entered as tracked, new, or deleted
@@ -144,10 +198,8 @@ const everydollar = {
       // parse the transactions
       let transactions = await everydollar.private.parseTransactionElements(cards);
 
-      //let mostRecentTransactionDate = undefined;
-
       if(transactions.length > 0) {
-        console.log(`${transactions.length} EveryDollar Transactions Found`);
+        console.log(`${transactions.length} EveryDollar Transactions Found\n`);
         return transactions.sort((a,b) => b.date - a.date);
       }
 

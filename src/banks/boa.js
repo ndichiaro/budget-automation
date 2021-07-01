@@ -36,7 +36,7 @@ const boa = {
       const isLoginSuccessful =  greetingHeader != null;
 
       if(isLoginSuccessful){
-        console.log("BOA Successful Login");
+        console.log("BOA Successful Login\n");
       } else{
         throw new Error("BOA Unsuccessful Login")
       }
@@ -134,10 +134,8 @@ const boa = {
 
         let limitDate = boa.private.getWeekBeforeTheStartOfTheMonth();
 
-        if(options) {
-          if(options.date) {
+        if(options && options.date) {
             limitDate = options.date;
-          }
         }
         
         const transactionDate = new Date(currentTransaction.date);
@@ -166,7 +164,7 @@ const boa = {
         // navigate to next page
         await boa.private.goToPreviousTransactionPage();
         // recursively call
-        let previousTransactions = await boa.public.pullTransacations(syncedTransactions);
+        let previousTransactions = await boa.public.pullTransacations(syncedTransactions, options);
         // concat results to transactions
         transactionList = transactionList.concat(previousTransactions);
       }

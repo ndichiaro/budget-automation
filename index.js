@@ -5,6 +5,8 @@ const config = require('./src/configuration');
 (async () => {
 
   // TODO: retry incorrect BOA code
+  // TODO: fix prompt what backspace is clicked
+  // TODO: press any key to exit
   const configuration = config.parse(process.argv);
 
   const { bankInstance } = configuration;
@@ -40,8 +42,16 @@ const config = require('./src/configuration');
     date: configuration.date
   });
 
-  console.log(`${transactions.length} BOA Transactions Pulled`);
+  console.log(`${transactions.length} BOA Transactions Pulled\n`);
 
-  await everydollar.addTransactions(transactions);
+  const added = await everydollar.addTransactions(transactions, {
+    isInteractive: configuration.isInteractive
+  });
+
+  if(added == 1) {
+    console.log(`${added} transaction was added\n`);
+  } else {
+    console.log(`${added} transactions were added\n`);
+  }
   //await browser.close();
 })();
