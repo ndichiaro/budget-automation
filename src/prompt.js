@@ -11,6 +11,22 @@ const prompt = {
         input: process.stdin,
         output: process.stdout
       });
+    },
+    /**
+     * Rebuilds a muted string to write when backspace is pressed 
+     * @param {String} str 
+     * @returns {String}
+     */
+    handleMutedBackspace: str => {
+      const strArr = str.split(": ");
+
+      let resultString = `${strArr[0]}: `;
+
+      for (let i = 0; i < strArr[1].length; i++) {
+        resultString = resultString.concat("*");
+      }
+
+      return resultString;
     }
   },
   public: {
@@ -35,12 +51,24 @@ const prompt = {
       }));
 
       rl._writeToOutput = stringToWrite => {
-        if (rl.stdoutMuted)
-          rl.output.write("*");
-        else
-          rl.output.write(stringToWrite);
-      };
 
+        const isReturn = stringToWrite === "\r\n" || stringToWrite == "\n";
+        const isChar = stringToWrite.length === 1;
+
+        if(isReturn) {
+          rl.output.write(stringToWrite);
+        }else {
+          if (rl.stdoutMuted) {
+            if(!isChar) {
+              rl.output.write(prompt.private.handleMutedBackspace(stringToWrite));
+            } else {
+              rl.output.write("*");
+            }
+          } else {
+            rl.output.write(stringToWrite);
+          }
+        }
+      };
       return promise;
     }
   }
