@@ -5,7 +5,7 @@ const puppeteer = require('puppeteer');
  * on a given page.
  * @param {puppeteer.Page} page 
  * @param {string} elementSelector 
- * @param {{ visible: boolean}} optionsclickDeletedTransactionTab
+ * @param {{ visible: boolean}} options
  */
 async function clickPageElement(page, elementSelector, options){
     await page.waitForSelector(elementSelector, options);
@@ -42,7 +42,8 @@ function parseAmount(amount) {
   const type = amount.includes("-") ? "Expense" : "Income";
 
   let value = amount.replace("-", "");
-
+  value = value.replace("+", "");
+  
   if(amount.includes("$")) {
     value = value.replace("$", "");
   }

@@ -106,7 +106,7 @@ const everydollar = {
           }
 
           transactionsRemaining--;
-          
+
           shouldAdd = await everydollar.private.shouldAddTransaction(transaction);
         }
 
@@ -118,10 +118,20 @@ const everydollar = {
         await common.pages.clickPageElement(page, "#TransactionDrawer_addNew");
 
         // 2. select Expense or Income
+        let descriptionElement = undefined;
+
         if(transaction.type === "Expense"){
           await common.pages.clickPageElement(page, "#TransactionModal_typeExpense");
+
+          const descriptionSelector = "input[placeholder='Where did you spend this money?']";
+          await page.waitForSelector(descriptionSelector);
+          descriptionElement = await page.$(descriptionSelector);
         } else if (transaction.type === "Income") {
           await common.pages.clickPageElement(page, "#TransactionModal_typeIncome");
+
+          const descriptionSelector = "input[placeholder='Where did this money come from?']";
+          await page.waitForSelector(descriptionSelector);
+          descriptionElement = await page.$(descriptionSelector);
         } else {
           throw new Error("Error adding transaction. A transaction must contain a type.")
         }
@@ -138,7 +148,6 @@ const everydollar = {
         await dateElement.type(formattedDate);
 
         // 5. Add description
-        const descriptionElement = await page.$("input[placeholder='Where did you spend this money?']");
         await descriptionElement.type(transaction.description);
 
         // 6. Click 'Submit'
