@@ -9,6 +9,55 @@ let page = undefined;
 const everydollar = {
   private: {
     /**
+     * @summary Gets a list of transaction that have been split in EveryDollar
+     * @returns {Promise<{splitCount: number, splitTransactions: Array<Transaction>}>}
+     */
+    getSplitTransactions: async () => {
+      const transactions = [];
+
+      let splitCount = 0;
+      const splitTransactionContainers = await page.$$(".split-transaction-card-container");
+
+      if(splitTransactionContainers == null) {
+        return [];
+      }
+
+      for (let i = 0; i < splitTransactionContainers.length; i++) {
+        const transaction = splitTransactionContainers[i];
+
+        const splitTransactionCards = await transaction.$$(".card-body");
+
+        splitCount += splitTransactionCards.length;
+
+        const splitTransactions = await everydollar.private.parseTransactionElements(splitTransactionCards);
+
+        // confirm the name and the date are the same
+        let combinedTransaction = splitTransactions[0];
+
+        for (let j = 1; j < splitTransactions.length; j++) {
+          const t = splitTransactions[j];
+          
+          // verify everything but the amount is the same
+          if(t.date.getDate() == combinedTransaction.date.getDate() &&
+             t.description == combinedTransaction.description &&
+             t.type == combinedTransaction.type) {
+            
+            // adjust the amount by adding the split transaction
+            combinedTransaction.amount = combinedTransaction.amount + t.amount;
+          } else {
+            throw new Error("Invalid Split Transactions")
+          }
+        }
+
+        transactions.push(combinedTransaction);
+      }
+
+      return {
+        splitCount, 
+        splitTransactions: transactions
+      };
+    },
+    /**
      * @summary Parses an array of elements into an array of Transactions
      * @param {Array<puppeteer.ElementHandle>} transactionElements 
      * @returns {Promise<Array<Transaction>>}
@@ -185,6 +234,7 @@ const everydollar = {
      */
     getLatestTransactions: async () => {
       let cards = [];
+
       const getCardElements = async () => await page.$$(".card-body");
 
       // click the transactions tray
@@ -199,6 +249,9 @@ const everydollar = {
       const trackedCards = await getCardElements();
       cards = cards.concat(trackedCards);
 
+      // split transactions are only on the 'tracked' tab
+      const { splitCount, splitTransactions } = await everydollar.private.getSplitTransactions();
+
       // go to deleted and pull the cards 
       await common.pages.clickPageElement(page, "#deleted", { visible: true });
       const deletedCards = await getCardElements();
@@ -207,9 +260,15 @@ const everydollar = {
       // parse the transactions
       let transactions = await everydollar.private.parseTransactionElements(cards);
 
-      if(transactions.length > 0) {
-        console.log(`${transactions.length} EveryDollar Transactions Found\n`);
-        return transactions.sort((a,b) => b.date - a.date);
+      // combining split transactions and transactions will cause duplicates with the 
+      // split transaction and the whole transaction. This shouldn't  cause sync issues 
+      // since this list should used as transactions already added to EveryDollar
+      let allTransactions = transactions.concat(splitTransactions);
+
+      if(allTransactions.length > 0) {
+        const count = allTransactions.length - splitCount + splitTransactions.length;
+        console.log(`${count} EveryDollar Transactions Found\n`);
+        return allTransactions.sort((a,b) => b.date - a.date);
       }
 
       return [];
