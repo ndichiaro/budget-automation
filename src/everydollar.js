@@ -187,7 +187,7 @@ const everydollar = {
 
         // 3. Add transaction amount
         const amountElement = await page.$(".TransactionForm-amountInput");
-        await amountElement.type(transaction.amount);
+        await amountElement.type(transaction.amount.toString());
 
         // 4. Add date
         const dateElement = await page.$("input[name='date']");
