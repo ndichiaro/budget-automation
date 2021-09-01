@@ -48,6 +48,10 @@ function parseAmount(amount) {
     value = value.replace("$", "");
   }
 
+  if(amount.includes(",")) {
+    value = value.replace(",", "");
+  }
+
   return {
     type,
     value

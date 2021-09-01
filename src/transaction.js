@@ -9,7 +9,7 @@
 function Transaction(date, description, amount, type) {
   this.date = date;
   this.description = description;
-  this.amount = parseFloat(amount);
+  this.amount = parseFloat(amount);//.toFixed(2);
   this.type = type;
 
   /**
