@@ -2,6 +2,7 @@ const puppeteer = require('puppeteer');
 const everydollar = require('./src/everydollar');
 const config = require('./src/configuration');
 const prompt = require('./src/prompt');
+const Credentials = require('./src/credentials');
 
 (async () => {
 
@@ -17,7 +18,7 @@ const prompt = require('./src/prompt');
 
   await everydollar.goto(browser);
 
-  const everydollarCreds = await everydollar.getUserCredentials();
+  const everydollarCreds = configuration.everydollarEmail && configuration.everydollarPassword ? new Credentials(configuration.everydollarEmail, configuration.everydollarPassword) : await everydollar.getUserCredentials();
 
   await everydollar.login(everydollarCreds);
 
@@ -25,7 +26,7 @@ const prompt = require('./src/prompt');
 
   await bankInstance.goto(browser);  
 
-  const bankCredentials = await bankInstance.getUserCredentials();
+  const bankCredentials = configuration.bankUsername && configuration.bankPassword ? new Credentials(configuration.bankUsername, configuration.bankPassword) : await bankInstance.getUserCredentials();
   await bankInstance.login(bankCredentials);
 
   const requires2FA = await bankInstance.requires2FA();
